@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f5f7fb">
+  <title>Deadlock Analysis Dashboard</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="side-top">
+        <section class="workspace-block">
+          <h2>Workspace</h2>
+          <p>Edit the matrices in Banker’s Algorithm. The request simulator uses that same state.</p>
+          <button id="reset-all" class="btn btn-dark btn-wide" type="button">Reset all matrices</button>
+        </section>
+        <section class="concepts-block">
+          <h3>Concepts covered</h3>
+          <ul>
+            <li>Banker’s safety algorithm</li>
+            <li>Resource-request validation</li>
+            <li>Separate deadlock detection</li>
+            <li>Recovery by process termination</li>
+            <li>Prevention by fixed ordering</li>
+            <li>Boundary and invalid input tests</li>
+          </ul>
+        </section>
+      </div>
+      <div class="side-note">Teaching data uses zero-based process IDs: P0, P1, and so on.</div>
+      <div class="backend-indicator"><span class="status-dot"></span><span id="backend-status">Connecting to C++ engine…</span></div>
+    </aside>
+
+    <main class="main-content">
+      <div class="topbar">
+        <div class="topbar-label">Interactive resource-allocation lab</div>
+        <button id="theme-toggle" class="theme-button" type="button" aria-label="Switch theme"><span id="theme-icon">☾</span><span id="theme-label">Dark mode</span></button>
+      </div>
+      <header class="hero-card">
+        <div class="hero-copy">
+          <h1>Deadlock Analysis Dashboard</h1>
+          <p>Explore safe states, validate resource requests, detect deadlocks, and test prevention and recovery policies with transparent step-by-step results.</p>
+        </div>
+      </header>
+
+      <nav class="tab-nav" aria-label="Dashboard sections">
+        <button class="tab-button active" data-tab="overview" type="button">Overview</button>
+        <button class="tab-button" data-tab="banker" type="button">Banker’s Algorithm</button>
+        <button class="tab-button" data-tab="request" type="button">Resource Request</button>
+        <button class="tab-button" data-tab="detection" type="button">Deadlock Detection</button>
+        <button class="tab-button" data-tab="prevention" type="button">Prevention</button>
+        <button class="tab-button" data-tab="results" type="button">Test Results &amp; AI Record</button>
+      </nav>
+
+      <section id="tab-overview" class="tab-panel active">
+        <div class="section-heading"><div><span class="eyebrow">AT A GLANCE</span><h2>Explore the system</h2></div><p>A small, interactive lab for six analytical scenarios.</p></div>
+        <div class="metric-grid">
+          <article class="metric-card"><div class="metric-icon blue">⌘</div><span class="metric-label">Core algorithms</span><strong>3</strong><span class="metric-foot">Safety, request, detection</span></article>
+          <article class="metric-card"><div class="metric-icon purple">▦</div><span class="metric-label">Required scenarios</span><strong>6</strong><span class="metric-foot">A through F</span></article>
+          <article class="metric-card"><div class="metric-icon green">↻</div><span class="metric-label">Recovery action</span><strong>Included</strong><span class="metric-foot">Terminate and release</span></article>
+          <article class="metric-card"><div class="metric-icon amber">⇢</div><span class="metric-label">Policy prevention</span><strong>Included</strong><span class="metric-foot">Fixed resource order</span></article>
+        </div>
+        <div class="two-column overview-bottom">
+          <article class="panel-card"><div class="panel-title"><div><span class="eyebrow">GET STARTED</span><h3>How to use the dashboard</h3></div><span class="title-symbol">↗</span></div>
+            <ol class="instruction-list">
+              <li>Open <b>Banker’s Algorithm</b> and edit Allocation, Maximum, and Available.</li>
+              <li>Use <b>Resource Request</b> to test waiting, safe granting, and unsafe-request denial.</li>
+              <li>Open <b>Deadlock Detection</b> to inspect a separate circular-wait example and simulate recovery.</li>
+              <li>Use <b>Prevention</b> to test whether acquisition order follows the policy.</li>
+              <li>Review <b>Test Results &amp; AI Record</b> for the analytical table and AI-use record.</li>
+            </ol>
+          </article>
+          <article class="panel-card concept-card"><div class="panel-title"><div><span class="eyebrow">IMPORTANT DISTINCTION</span><h3>Unsafe is not the same as deadlocked</h3></div></div>
+            <p>The Banker’s Algorithm checks whether a state can guarantee a safe completion order. Deadlock detection separately checks processes that cannot complete under the currently allocated resources and outstanding requests.</p>
+            <div class="callout-info"><span class="callout-mark">i</span><span>Do not label an unsafe state as confirmed deadlock. Keep avoidance and detection as separate functions.</span></div>
+          </article>
+        </div>
+      </section>
+
+      <section id="tab-banker" class="tab-panel">
+        <div class="section-heading"><div><span class="eyebrow">SCENARIO A · SAFE STATE</span><h2>Banker’s Algorithm</h2></div><p>Edit the resource state and calculate Need = Maximum − Allocation.</p></div>
+        <div class="callout-info page-callout"><span class="callout-mark">i</span><span>All matrix values must be non-negative integers, and Allocation cannot exceed Maximum.</span></div>
+        <div class="matrix-grid">
+          <article class="panel-card matrix-card"><div class="matrix-card-header"><div><h3>Allocation</h3><p>Resources currently held</p></div><span class="matrix-tag">n × m</span></div><div id="allocation-table" class="table-scroll"></div></article>
+          <article class="panel-card matrix-card"><div class="matrix-card-header"><div><h3>Maximum</h3><p>Maximum resource demand</p></div><span class="matrix-tag">n × m</span></div><div id="maximum-table" class="table-scroll"></div></article>
+          <article class="panel-card matrix-card available-card"><div class="matrix-card-header"><div><h3>Available</h3><p>Currently free resources</p></div><span class="matrix-tag">1 × m</span></div><div id="available-table" class="available-inputs"></div><div class="available-hint">Resource types: R0, R1, R2</div></article>
+        </div>
+        <div class="action-row"><div><strong>Run the safety algorithm</strong><p>Step through Work updates until all processes finish or no further process can proceed.</p></div><button id="run-safety" class="btn btn-primary" type="button">Run safety check <span>→</span></button></div>
+        <div id="safety-output" class="output-area empty-output"><div class="empty-icon">✓</div><h3>Ready to analyse</h3><p>Run the safety check to calculate Need, the safe sequence, and Work after each process finishes.</p></div>
+      </section>
+
+      <section id="tab-request" class="tab-panel">
+        <div class="section-heading"><div><span class="eyebrow">SCENARIOS B &amp; C</span><h2>Resource Request</h2></div><p>Test a request against the process’s remaining Need and system Available resources.</p></div>
+        <div class="two-column request-layout">
+          <article class="panel-card"><div class="panel-title"><div><h3>Submit a request</h3><p>Uses the current Banker’s Algorithm matrices.</p></div><span class="title-symbol">↗</span></div>
+            <label class="field-label" for="request-pid">Process</label><select id="request-pid" class="field-control"><option value="0">P0</option><option value="1">P1</option><option value="2">P2</option><option value="3">P3</option><option value="4">P4</option></select>
+            <label class="field-label">Request vector</label><div id="request-vector" class="vector-inputs"></div>
+            <div class="preset-row"><button class="btn btn-secondary btn-small" type="button" id="preset-wait">Load scenario B</button><button class="btn btn-secondary btn-small" type="button" id="preset-unsafe">Load scenario C</button></div>
+            <button id="run-request" class="btn btn-primary btn-wide" type="button">Validate request <span>→</span></button>
+          </article>
+          <article class="panel-card explain-card"><span class="eyebrow">DECISION RULE</span><h3>Three checks before granting</h3><div class="rule-item"><span class="rule-number">01</span><div><b>Request ≤ Need</b><p>The process cannot request more than its declared remaining demand.</p></div></div><div class="rule-item"><span class="rule-number">02</span><div><b>Request ≤ Available</b><p>If resources are unavailable, the process must wait. This is not automatically invalid.</p></div></div><div class="rule-item"><span class="rule-number">03</span><div><b>Resulting state is safe</b><p>Temporarily allocate, run the safety algorithm, then commit or roll back.</p></div></div></article>
+        </div>
+        <div id="request-output" class="output-area empty-output"><div class="empty-icon">⇄</div><h3>No request submitted</h3><p>Choose a request or load one of the required scenarios.</p></div>
+      </section>
+
+      <section id="tab-detection" class="tab-panel">
+        <div class="section-heading"><div><span class="eyebrow">SCENARIO D · DETECTION &amp; RECOVERY</span><h2>Deadlock Detection</h2></div><p>This separate example models two processes holding one resource each and waiting for the other.</p></div>
+        <div class="callout-warning page-callout"><span class="callout-mark">!</span><span>This detection scenario is deliberately separate from the Banker’s Algorithm matrices.</span></div>
+        <div class="matrix-grid detection-grid">
+          <article class="panel-card matrix-card"><div class="matrix-card-header"><div><h3>Allocation</h3><p>Held resource instances</p></div><span class="matrix-tag">2 × 2</span></div><div id="detect-allocation-table" class="table-scroll"></div></article>
+          <article class="panel-card matrix-card"><div class="matrix-card-header"><div><h3>Outstanding Request</h3><p>Next resources each process needs</p></div><span class="matrix-tag">2 × 2</span></div><div id="detect-request-table" class="table-scroll"></div></article>
+          <article class="panel-card matrix-card available-card"><div class="matrix-card-header"><div><h3>Available</h3><p>Free instances</p></div><span class="matrix-tag">1 × 2</span></div><div id="detect-available-table" class="available-inputs"></div><div class="available-hint">Resource types: R0, R1</div></article>
+        </div>
+        <div class="action-row"><div><strong>Run deadlock detection</strong><p>Identify processes that cannot be marked finish under the supplied request assumptions.</p></div><button id="run-detection" class="btn btn-primary" type="button">Detect deadlock <span>→</span></button></div>
+        <div id="detection-output" class="output-area empty-output"><div class="empty-icon">⌁</div><h3>Detection not run</h3><p>Run detection to inspect the outstanding requests and unfinished processes.</p></div>
+        <div class="panel-card recovery-card"><div class="panel-title"><div><span class="eyebrow">RECOVERY ACTION</span><h3>Recover by terminating a process</h3><p>Terminate a detected process and return its allocated resources to Available.</p></div></div><div class="recovery-controls"><label class="field-label" for="recover-pid">Process to terminate</label><select id="recover-pid" class="field-control"><option value="0">P0</option><option value="1">P1</option></select><button id="run-recovery" class="btn btn-secondary" type="button">Simulate recovery</button></div><div id="recovery-output" class="inline-result muted-result">Run detection first, then choose a process to terminate.</div></div>
+      </section>
+
+      <section id="tab-prevention" class="tab-panel">
+        <div class="section-heading"><div><span class="eyebrow">SCENARIO E · PREVENTION</span><h2>Prevention policy</h2></div><p>Test a fixed global resource order to eliminate circular wait.</p></div>
+        <div class="two-column prevention-layout">
+          <article class="panel-card"><div class="panel-title"><div><h3>Check acquisition order</h3><p>Enter resource IDs in the order a process would acquire them.</p></div><span class="title-symbol">⇢</span></div><label class="field-label" for="resource-order">Resource sequence</label><input id="resource-order" class="field-control" type="text" value="0, 1, 2" autocomplete="off" spellcheck="false"><div class="field-hint">Example: <code>0, 1, 2</code> follows the policy. <code>2, 1, 0</code> is blocked.</div><div class="preset-row"><button id="order-safe" class="btn btn-secondary btn-small" type="button">Load valid order</button><button id="order-invalid" class="btn btn-secondary btn-small" type="button">Load violating order</button></div><button id="run-prevention" class="btn btn-primary btn-wide" type="button">Check policy <span>→</span></button><div id="prevention-output" class="inline-result muted-result">The policy check has not been run.</div></article>
+          <article class="panel-card"><span class="eyebrow">POLICY COMPARISON</span><h3>What changes?</h3><div class="policy-compare"><div class="policy-column"><div class="policy-status bad">Without policy</div><b>Potential circular wait</b><p>Processes may acquire resources in conflicting orders and form a cycle.</p></div><div class="policy-divider">→</div><div class="policy-column"><div class="policy-status good">Fixed order</div><b>Circular wait prevented</b><p>Processes must request resources in increasing ID order.</p></div></div><div class="callout-info"><span class="callout-mark">i</span><span>Prevention can reduce flexibility and resource utilization. The policy avoids this specific necessary condition, not every kind of performance issue.</span></div></article>
+        </div>
+      </section>
+
+      <section id="tab-results" class="tab-panel">
+        <div class="section-heading"><div><span class="eyebrow">SCENARIO F · EVIDENCE &amp; DOCUMENTATION</span><h2>Test Results &amp; AI Record</h2></div><p>Run the preset checks to generate actual results from the C++ algorithm engine.</p></div>
+        <div class="action-row results-action"><div><strong>Run the six required checks</strong><p>Uses the default teaching matrices and separate detection case.</p></div><button id="run-all-tests" class="btn btn-primary" type="button">Run all checks <span>→</span></button></div>
+        <div id="test-summary" class="test-summary"><span class="summary-icon">▤</span><span>Tests have not been run yet. Run all checks to populate the analytical results table.</span></div>
+        <div class="panel-card results-table-card"><div class="panel-title"><div><h3>Analytical results table</h3><p>Actual dashboard output compared with expected behaviour.</p></div><span class="matrix-tag">TC1–TC6</span></div><div class="table-scroll"><table class="data-table"><thead><tr><th>Test</th><th>System condition</th><th>Actual result</th><th>Expected result</th><th>Analysis / conclusion</th></tr></thead><tbody id="test-results-body"><tr><td colspan="5" class="table-empty">Run all checks to populate this table.</td></tr></tbody></table></div></div>
+        <div class="panel-card ai-record-card"><div class="panel-title"><div><span class="eyebrow">DOCUMENTATION</span><h3>AI usage record</h3><p>Review and update the verification column to describe what your group actually checked.</p></div></div><div class="table-scroll"><table class="data-table"><thead><tr><th>AI tool used</th><th>Purpose</th><th>Output generated</th><th>Student verification</th></tr></thead><tbody><tr><td>ChatGPT</td><td>Interface planning, algorithm assistance, and test-case design.</td><td>Dashboard structure, C++ implementation, test scenarios, and documentation draft.</td><td><textarea id="ai-verification" class="verification-input" rows="3">Run the test suite, compare outputs with expected cases, and verify the algorithms before submission.</textarea></td></tr></tbody></table></div></div>
+        <div class="callout-warning page-callout"><span class="callout-mark">!</span><span>Review and verify the results yourself before submitting. An unsafe Banker’s state is not automatically confirmed deadlock; the deadlock detector is a separate function.</span></div>
+      </section>
+      <footer class="page-footer"><span>Deadlock Analysis Dashboard</span><span>HTML · CSS · JavaScript · C++</span></footer>
+    </main>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>

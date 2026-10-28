@@ -1,0 +1,34 @@
+deadlock_server
+deadlock_server.exe
+algorithm_tests
+algorithm_tests.exe
+*.o
+
+# Compiled C++ executables
+deadlock_server
+deadlock_server.exe
+algorithm_tests
+algorithm_tests.exe
+
+# Object and compiled files
+*.o
+*.obj
+*.out
+
+# IDE settings
+.vscode/
+.idea/
+
+# Logs and temporary files
+*.log
+*.tmp
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+Desktop.ini

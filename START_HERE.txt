@@ -1,0 +1,17 @@
+DEADLOCK ANALYSIS DASHBOARD
+
+1. Extract this folder.
+2. Make sure g++ with C++17 support is installed.
+3. Windows: double-click run_windows.bat
+   Ubuntu/WSL: run ./run_linux.sh
+4. Open http://127.0.0.1:8080
+
+Files:
+- index.html: page structure
+- styles.css: design and themes
+- app.js: browser interactions
+- main.cpp: C++ server and all algorithms in one file
+- README.md: setup and project details
+- Deadlock_Analysis_Report.docx: report draft
+
+The test source files and separate algorithm/header files were removed. The launch scripts compile main.cpp only.
