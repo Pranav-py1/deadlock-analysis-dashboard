@@ -278,6 +278,14 @@ void handle(Socket client) {
 
 int main(int argc, char** argv) {
     int port = 8080;
+    if (const char* envPort = std::getenv("PORT")) {
+    try {
+        port = std::stoi(envPort);
+    } catch (...) {
+        std::cerr << "Invalid PORT environment variable.\n";
+        return 1;
+    }
+}
     if (argc > 1) {
         try { port = std::stoi(argv[1]); } catch (...) { std::cerr << "Invalid port.\n"; return 1; }
     }
@@ -294,7 +302,7 @@ int main(int argc, char** argv) {
 #endif
     sockaddr_in address{};
     address.sin_family = AF_INET;
-    address.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+    address.sin_addr.s_addr = htonl(INADDR_ANY);
     address.sin_port = htons(static_cast<unsigned short>(port));
     if (bind(server, reinterpret_cast<sockaddr*>(&address), sizeof(address)) < 0) {
         std::cerr << "Could not bind to port " << port << ". Is another server using it?\n";

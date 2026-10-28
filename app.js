@@ -1,3 +1,4 @@
+const API_BASE = 'https://YOUR-RENDER-SERVICE.onrender.com';
 const DEFAULT_STATE = {
   allocation: [[0,1,0],[2,0,0],[3,0,2],[2,1,1],[0,0,2]],
   maximum: [[7,5,3],[3,2,2],[9,0,2],[2,2,2],[4,3,3]],
@@ -30,7 +31,10 @@ function fmtVector(vector) { return `[${vector.join(', ')}]`; }
 async function apiGet(endpoint, params = {}) {
   const query = new URLSearchParams();
   Object.entries(params).forEach(([key, value]) => query.set(key, typeof value === 'string' ? value : String(value)));
-  const response = await fetch(`${endpoint}?${query.toString()}`, { method: 'GET', cache: 'no-store' });
+  const response = await fetch(`${API_BASE}${endpoint}?${query.toString()}`, {
+  method: 'GET',
+  cache: 'no-store'
+});
   let result;
   try { result = await response.json(); }
   catch { throw new Error(`The C++ engine returned an unreadable response (HTTP ${response.status}).`); }
